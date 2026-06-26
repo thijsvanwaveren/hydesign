@@ -22,14 +22,17 @@ import pandas as pd
  
 warnings.filterwarnings("ignore", category=RuntimeWarning)
  
-# --- HYDESIGN IMPORTS ---
+ 
+# --- DYNAMIC PATH RESOLUTION & IMPORTS ---
 current_dir = os.path.dirname(os.path.abspath(__file__))
 thesis_dir = os.path.abspath(os.path.join(current_dir, '..'))
-root_dir = os.path.abspath(os.path.join(thesis_dir, '..', '..'))
+examples_dir = os.path.abspath(os.path.join(thesis_dir, '..'))
+root_dir = os.path.abspath(os.path.join(examples_dir, '..'))
 sys.path.append(root_dir)
- 
-from hydesign.assembly.hpp_assembly_tierb2_thijs_3_3_26 import hpp_model_constant_output_offgrid as hpp_model
- 
+
+# Import the renamed assembly model
+from hydesign.assembly.hpp_assembly_offgrid_datacenter import hpp_model_constant_output_offgrid as hpp_model
+
  
 # =============================================================================
 # CONFIG / HELPERS

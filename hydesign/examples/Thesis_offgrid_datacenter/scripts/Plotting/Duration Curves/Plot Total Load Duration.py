@@ -15,7 +15,7 @@ import matplotlib.ticker as mtick
 # =============================================================================
 # 1. SETUP & PATHS
 # =============================================================================
-current_dir = r"C:\Users\thijs\Downloads\hydesign\hydesign\examples\Thesis_ThijsvanWaveren\scripts"
+current_dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(current_dir)
 
 IT_CAPACITIES_MW = [16.0, 20.0, 30.0, 40.0, 50.0, 75.0, 100.0]

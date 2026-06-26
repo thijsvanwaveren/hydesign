@@ -67,7 +67,7 @@ max_b2 = find_actual_optimum(df_b2, 'Tier_B2_MW', 'Reliability_Deadline_B2')
 fig, ax = plt.subplots(figsize=(11, 6.5), facecolor='white')
 halo = [path_effects.withStroke(linewidth=3, foreground="white", alpha=0.9)]
 
-# 1. Plot the "SLA Breach Zone" (Visual storytelling foundation)
+# 1. Plot the "SLA Breach Zone" 
 ax.axhline(99.9, color=C_BREACH, linestyle='--', linewidth=1.5, zorder=1)
 ax.fill_between([-5, 60], 0, 99.9, color=C_BREACH, alpha=0.04, zorder=0)
 ax.text(1, 99.9 + 0.5, "Strict Reliability Target (99.9%)", color=C_BREACH, fontsize=10, fontweight='bold', va='bottom', zorder=5)

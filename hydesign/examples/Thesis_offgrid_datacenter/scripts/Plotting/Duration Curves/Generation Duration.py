@@ -42,17 +42,32 @@ FIXED_DESIGN = [35, 300, 5, 20, 7, 180, 39, 180, 1.25, 25, 8, 10]
 os.environ["REWARD_C2"] = "1.0"
 
 # =============================================================================
-# DIRECTORY SETUP & HYDESIGN IMPORTS
+# DIRECTORY SETUP & HYDESIGN IMPORTS (DYNAMIC PATHS)
 # =============================================================================
 
+# scripts_dir = .../examples/Thesis_offgrid_datacenter/scripts
 current_dir = os.path.dirname(os.path.abspath(__file__))
-thesis_dir = r"C:\Users\thijs\Downloads\hydesign\hydesign\examples\Thesis_ThijsvanWaveren"
 
-ROOT_DIR = r"C:\Users\thijs\Downloads\hydesign"
+# thesis_dir = .../examples/Thesis_offgrid_datacenter
+thesis_dir = os.path.abspath(os.path.join(current_dir, '..', '..', '..'))
+
+# examples_dir = .../examples
+examples_dir = os.path.abspath(os.path.join(thesis_dir, '..'))
+
+# ROOT_DIR = .../hydesign
+ROOT_DIR = os.path.abspath(os.path.join(examples_dir, '..'))
+
+# Set up output directories
+results_dir = os.path.join(thesis_dir, 'results')
+figures_dir = os.path.join(thesis_dir, 'Figures')
+os.makedirs(results_dir, exist_ok=True)
+os.makedirs(figures_dir, exist_ok=True)
+
 if sys.path[0] != ROOT_DIR:
     sys.path.insert(0, ROOT_DIR)
 
-from hydesign.assembly.hpp_assembly_offgrid_thijs_2_2_26 import (
+# Import the updated offgrid assembly
+from hydesign.assembly.hpp_assembly_offgrid_datacenter import (
     hpp_model_constant_output_offgrid as hpp_model
 )
 
@@ -67,7 +82,11 @@ def configure_parameters(thesis_dir):
     - no grid connection,
     - BESS one-way efficiency corresponds to 86% round-trip efficiency.
     """
-    par_fn = os.path.join(thesis_dir, "inputs", "hpp_pars.yml")
+    inputs_dir = os.path.join(thesis_dir, "inputs")
+    par_fn = os.path.join(inputs_dir, "hpp_pars.yml")
+    
+    if not os.path.exists(par_fn):
+        raise FileNotFoundError(f"Parameters file missing at: {par_fn}")
 
     with open(par_fn, "r") as f:
         sim_pars = yaml.safe_load(f)
@@ -75,7 +94,7 @@ def configure_parameters(thesis_dir):
     sim_pars["G_MW"] = 0
     sim_pars["battery_charge_efficiency"] = float(np.sqrt(0.86))
 
-    temp_fn = os.path.join(thesis_dir, "inputs", "hpp_pars_offgrid_tierA_8MW_temp.yml")
+    temp_fn = os.path.join(inputs_dir, "hpp_pars_offgrid_tierA_8MW_temp.yml")
 
     with open(temp_fn, "w") as f:
         yaml.dump(sim_pars, f)
@@ -94,13 +113,13 @@ def run_tier_a_case():
 
     N_life = 25 * 8760
 
-    examples_sites = pd.read_csv(
-        os.path.join(thesis_dir, "..", "examples_sites.csv"),
-        sep=";"
-    )
+    # Explicitly target the main examples folder
+    examples_sites_path = os.path.join(examples_dir, "examples_sites.csv")
+    examples_sites = pd.read_csv(examples_sites_path, sep=";")
 
     ex_site = examples_sites.loc[examples_sites.name == SITE_NAME]
-    weather_fn = os.path.join(thesis_dir, "..", ex_site["input_ts_fn"].values[0])
+    weather_fn = os.path.join(examples_dir, ex_site["input_ts_fn"].values[0])
+    
     sim_pars_fn = configure_parameters(thesis_dir)
 
     print("--- Running HyDesign EMS for 8 MW Tier A IT load ---")
@@ -226,22 +245,22 @@ def run_tier_a_case():
     annual_bess_losses = annual_charge - annual_discharge
 
     print("\n--- Summary ---")
-    print(f"Average available RE:                 {avg_re:.2f} MW")
-    print(f"Average served IT load:               {avg_served_it:.2f} MW_IT")
-    print(f"Average served facility load:         {avg_served_facility:.2f} MW_el")
-    print(f"Average RE directly serving load:     {avg_direct:.2f} MW")
-    print(f"Average RE sent to BESS charging:     {avg_charge:.2f} MW")
-    print(f"Average BESS discharge to load:       {avg_discharge:.2f} MW")
-    print(f"Average curtailment:                  {avg_curtail:.2f} MW")
-    print(f"Tier A FLF:                           {flf * 100:.4f}%")
-    print(f"Tier A energy-served reliability:     {energy_served_share * 100:.4f}%")
-    print(f"Total unserved Tier A energy:         {df['Unserved_A_IT_MW'].sum():.4f} MWh_IT")
-    print(f"Annual BESS charge energy:            {annual_charge:.2f} MWh")
-    print(f"Annual BESS discharge energy:         {annual_discharge:.2f} MWh")
-    print(f"Annual BESS losses / net storage use: {annual_bess_losses:.2f} MWh")
-    print(f"Max absolute balance residual:        {np.max(np.abs(balance_residual)):.6e} MW")
+    print(f"Average available RE:                   {avg_re:.2f} MW")
+    print(f"Average served IT load:                 {avg_served_it:.2f} MW_IT")
+    print(f"Average served facility load:           {avg_served_facility:.2f} MW_el")
+    print(f"Average RE directly serving load:       {avg_direct:.2f} MW")
+    print(f"Average RE sent to BESS charging:       {avg_charge:.2f} MW")
+    print(f"Average BESS discharge to load:         {avg_discharge:.2f} MW")
+    print(f"Average curtailment:                    {avg_curtail:.2f} MW")
+    print(f"Tier A FLF:                             {flf * 100:.4f}%")
+    print(f"Tier A energy-served reliability:       {energy_served_share * 100:.4f}%")
+    print(f"Total unserved Tier A energy:           {df['Unserved_A_IT_MW'].sum():.4f} MWh_IT")
+    print(f"Annual BESS charge energy:              {annual_charge:.2f} MWh")
+    print(f"Annual BESS discharge energy:           {annual_discharge:.2f} MWh")
+    print(f"Annual BESS losses / net storage use:   {annual_bess_losses:.2f} MWh")
+    print(f"Max absolute balance residual:          {np.max(np.abs(balance_residual)):.6e} MW")
 
-    out_csv = os.path.join(current_dir, "TierA_8MW_EMS_Generation_Allocation_Data.csv")
+    out_csv = os.path.join(results_dir, "TierA_8MW_EMS_Generation_Allocation_Data.csv")
     df.to_csv(out_csv, index=False)
     print(f"\nSaved EMS allocation data to: {out_csv}")
 
@@ -473,8 +492,9 @@ def plot_smooth_after_bess_duration_curve(df):
 
     plt.tight_layout()
 
-    out_svg = os.path.join(current_dir, "TierA_8MW_RE_vs_After_BESS_Duration_Curve.svg")
-    out_png = os.path.join(current_dir, "TierA_8MW_RE_vs_After_BESS_Duration_Curve.png")
+    # Route outputs to the newly created Figures directory
+    out_svg = os.path.join(figures_dir, "TierA_8MW_RE_vs_After_BESS_Duration_Curve.svg")
+    out_png = os.path.join(figures_dir, "TierA_8MW_RE_vs_After_BESS_Duration_Curve.png")
 
     plt.savefig(out_svg, dpi=300, bbox_inches="tight")
     plt.savefig(out_png, dpi=300, bbox_inches="tight")

@@ -14,16 +14,21 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # =============================================================================
-# 1. SETUP & DATA EXTRACTION
+# 1. SETUP & DATA EXTRACTION (DYNAMIC PATHS)
 # =============================================================================
+scripts_dir = os.path.dirname(os.path.abspath(__file__))
+thesis_dir = os.path.abspath(os.path.join(scripts_dir, '..'))
+results_dir = os.path.join(thesis_dir, 'results')
 
-BASE_FOLDER = r"C:\Users\thijs\Downloads\hydesign\hydesign\examples\Thesis_ThijsvanWaveren\scripts"
 IT_CAPACITY = 16.0
 RELIABILITY_TARGET = 99.9
 
-FILE_NAME = f"Feasible_3D_Sweep_Results_99.9pct_IT{IT_CAPACITY:.1f}.csv"
-sweep_file = os.path.join(BASE_FOLDER, FILE_NAME)
+FILE_NAME = f"Feasible_3D_Sweep_Results_{RELIABILITY_TARGET}pct_IT{IT_CAPACITY:.1f}.csv"
+sweep_file = os.path.join(results_dir, FILE_NAME)
 
+# Add a safety catch just in case the file hasn't been generated yet
+if not os.path.exists(sweep_file):
+    raise FileNotFoundError(f"Could not find the results file at:\n{sweep_file}\nPlease ensure the parameter sweep has been run first.")
 def get_pareto_fronts():
     """
     Extracts the absolute maximum B1 (when B2=0) and maximum B2 (when B1=0) 

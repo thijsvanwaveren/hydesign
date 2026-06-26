@@ -28,7 +28,7 @@ vis_dir = os.path.join(thesis_dir, "Figures")
 os.makedirs(vis_dir, exist_ok=True)
 sys.path.append(root_dir)
 
-from hydesign.assembly.hpp_assembly_tierb2_thijs_3_3_26 import hpp_model_constant_output_offgrid as hpp_model
+from hydesign.assembly.hpp_assembly_offgrid_datacenter import hpp_model_constant_output_offgrid as hpp_model
 
 # =============================================================================
 # INPUTS & PLOT CONFIGURATION
@@ -55,7 +55,7 @@ full_time_index = pd.date_range(start="2026-01-01 00:00", periods=8760, freq='h'
 
 def evaluate_16mw_anomaly():
     """Configures and runs the CPLEX evaluation for the anomaly scenario."""
-    os.environ['REWARD_C2'] = '1000.0' 
+    os.environ['REWARD_C2'] = '1.0' 
     par_fn = os.path.join(thesis_dir, 'inputs', 'hpp_pars.yml')
     with open(par_fn, 'r') as f: 
         sim_pars = yaml.safe_load(f)

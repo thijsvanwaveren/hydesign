@@ -21,8 +21,8 @@ from matplotlib.lines import Line2D
 # 1. SETUP & PATHS
 # =============================================================================
 
-base_dir = r"C:\Users\thijs\Downloads\hydesign\hydesign\examples\Thesis_ThijsvanWaveren"
-scripts_dir = os.path.join(base_dir, "scripts")
+scripts_dir = os.path.dirname(os.path.abspath(__file__))
+base_dir = os.path.abspath(os.path.join(scripts_dir, '..'))
 vis_dir = os.path.join(base_dir, "Visualizations")
 
 # Process all capacities for individual curves, but only several for combined plot

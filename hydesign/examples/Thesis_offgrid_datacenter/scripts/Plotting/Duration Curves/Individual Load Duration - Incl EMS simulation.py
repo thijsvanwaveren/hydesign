@@ -21,15 +21,14 @@ warnings.filterwarnings("ignore", category=RuntimeWarning)
 # =============================================================================
 # --- HYDESIGN EXPLICIT IMPORTS & PATHS ---
 # =============================================================================
-current_dir = r"C:\Users\thijs\Downloads\hydesign\hydesign\examples\Thesis_ThijsvanWaveren\scripts"
+current_dir = os.path.dirname(os.path.abspath(__file__))
 thesis_dir = os.path.abspath(os.path.join(current_dir, '..'))
-hydesign_sys_path = r"C:\Users\thijs\Downloads\hydesign"
+hydesign_sys_path = os.path.abspath(os.path.join(current_dir, '..', '..', '..'))
 
 if hydesign_sys_path not in sys.path:
     sys.path.insert(0, hydesign_sys_path)
 
-from hydesign.assembly.hpp_assembly_tierb2_thijs_3_3_26 import hpp_model_constant_output_offgrid as hpp_model
-
+from hydesign.assembly.hpp_assembly_offgrid_datacenter import hpp_model_constant_output_offgrid as hpp_model
 # =============================================================================
 # 1. TARGET OPTIMAL MIXES
 # =============================================================================
@@ -51,14 +50,23 @@ C_C = '#7f7f7f'         # Grey
 C_GRID = '#e0e0e0'
 
 def configure_parameters(thesis_dir):
-    par_fn = os.path.join(thesis_dir, 'inputs', 'hpp_pars.yml')
+    """Loads and configures EMS parameters dynamically."""
+    inputs_dir = os.path.join(thesis_dir, 'inputs')
+    par_fn = os.path.join(inputs_dir, 'hpp_pars.yml')
+    
+    if not os.path.exists(par_fn):
+        raise FileNotFoundError(f"Could not find the parameters file at:\n{par_fn}")
+        
     with open(par_fn, 'r') as f:
         sim_pars = yaml.safe_load(f)
+        
     sim_pars['G_MW'] = 0
     sim_pars['battery_charge_efficiency'] = float(np.sqrt(0.86))
-    temp_fn = os.path.join(thesis_dir, 'inputs', 'hpp_pars_offgrid_ldc_temp.yml')
+
+    # Save the temporary file back into the inputs directory
+    temp_fn = os.path.join(inputs_dir, 'hpp_pars_offgrid_ldc_temp.yml')
     with open(temp_fn, 'w') as f:
-        yaml.dump(sim_pars, f)
+        yaml.dump(sim_pars, f)        
     return temp_fn
 
 # =============================================================================

@@ -17,37 +17,42 @@ import matplotlib.patheffects as path_effects
 from matplotlib.lines import Line2D
 
 # =============================================================================
-# 1. SETUP & DATA
+# 1. SETUP & DATA (DYNAMIC PATHS)
 # =============================================================================
 
-BASE_FOLDER = r"C:\Users\thijs\Downloads\hydesign\hydesign\examples\Thesis_ThijsvanWaveren\scripts"
+# Dynamically resolve paths relative to this script
+scripts_dir = os.path.dirname(os.path.abspath(__file__))
+thesis_dir = os.path.abspath(os.path.join(scripts_dir, '..'))
+results_dir = os.path.join(thesis_dir, 'results')
+figures_dir = os.path.join(thesis_dir, 'Figures')
+
+# Ensure the Figures directory exists for saving the plot
+os.makedirs(figures_dir, exist_ok=True)
+
 IT_CAPACITY = 16.0
 RELIABILITY_TARGET = 99.9
 
-FILE_NAME = f"Feasible_3D_Sweep_Results_99.9pct_IT{IT_CAPACITY:.1f}.csv"
-file_path = os.path.join(BASE_FOLDER, FILE_NAME)
+FILE_NAME = f"Feasible_3D_Sweep_Results_{RELIABILITY_TARGET}pct_IT{IT_CAPACITY:.1f}.csv"
+file_path = os.path.join(results_dir, FILE_NAME)
 
-if os.path.exists(file_path):
-    df = pd.read_csv(file_path)
+if not os.path.exists(file_path):
+    raise FileNotFoundError(f"Could not find the results file at:\n{file_path}\nPlease ensure the parameter sweep has been run first.")
 
-    if "Reliability" in df.columns:
-        df = df[df["Reliability"] >= RELIABILITY_TARGET].copy()
+df = pd.read_csv(file_path)
 
-    # For each B1/B2 combination, store the maximum Tier A that remains feasible.
-    heatmap_df = (
-        df.groupby(["Tier_B1_MW", "Tier_B2_MW"])["Tier_A_MW"]
-        .max()
-        .reset_index()
-    )
+if "Reliability" in df.columns:
+    df = df[df["Reliability"] >= RELIABILITY_TARGET].copy()
 
-    x = heatmap_df["Tier_B1_MW"].to_numpy()
-    y = heatmap_df["Tier_B2_MW"].to_numpy()
-    z = heatmap_df["Tier_A_MW"].to_numpy()
+# For each B1/B2 combination, store the maximum Tier A that remains feasible.
+heatmap_df = (
+    df.groupby(["Tier_B1_MW", "Tier_B2_MW"])["Tier_A_MW"]
+    .max()
+    .reset_index()
+)
 
-
-    x = np.array(x)
-    y = np.array(y)
-    z = np.array(z)
+x = heatmap_df["Tier_B1_MW"].to_numpy()
+y = heatmap_df["Tier_B2_MW"].to_numpy()
+z = heatmap_df["Tier_A_MW"].to_numpy()
 
 # =============================================================================
 # 2. STYLE
@@ -245,8 +250,9 @@ plt.tight_layout()
 # 6. EXPORT
 # =============================================================================
 
-save_svg = os.path.join(BASE_FOLDER, "Thesis_Feasible_Workload_Combinations_Clean.svg")
+# Save dynamically to the Figures directory
+save_svg = os.path.join(figures_dir, "Thesis_Feasible_Workload_Combinations_Clean.svg")
 plt.savefig(save_svg, bbox_inches="tight")
-
+print(f"Plot successfully saved to:\n{save_svg}")
 
 plt.show()

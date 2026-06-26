@@ -15,11 +15,11 @@ from hydesign.weather.weather import ABL
 from hydesign.wind.wind import genericWT_surrogate, genericWake_surrogate, wpp, wpp_with_degradation, get_rotor_d
 from hydesign.pv.pv import pvp, pvp_with_degradation
 # Import the class as 'ems'
-from hydesign.ems.ems_incltierb2_thijs_3_3_26 import ems_constantoutput as ems
-from hydesign.ems.ems_incltierb2_thijs_3_3_26 import ems_long_term_operation
+from hydesign.ems.ems_offgrid_datacenter import ems_constantoutput as ems
+from hydesign.ems.ems_offgrid_datacenter import ems_long_term_operation
 from hydesign.battery_degradation import battery_degradation, battery_loss_in_capacity_due_to_temp
 from hydesign.costs.costs import wpp_cost, pvp_cost, battery_cost, shared_cost
-from hydesign.finance.finance_offgrid_thijs_2_2_26 import finance
+from hydesign.finance.finance_offgrid_datacenter import finance
 
 from hydesign.assembly.hpp_assembly import hpp_base
 
